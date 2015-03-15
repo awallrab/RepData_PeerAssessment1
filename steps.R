@@ -12,6 +12,12 @@ median(steps_per_day)
 
 hist(steps_per_day, breaks = length(steps_per_day), main="Histogram: Number of Steps per Day", xlab="Steps per Day", ylab="Frequency", col="red")
 
-library(ggplot2)
 averages <- aggregate(x = list(steps = activities$steps), by = list(interval = activities$interval), FUN = mean, na.rm = TRUE)
-ggplot(data = averages, aes(x = interval, y = steps)) + geom_line() + xlab("5-minute interval") + ylab("average number of steps taken")
+plot(averages$steps~averages$interval, type="l", xlab="Time interval", ylab="Average number of steps")
+
+
+for (i in 1:length(activities$step)) {
+  if (is.na(activities$step[i])) {
+    activities$step[i] <- averages$steps[i]
+  }
+}

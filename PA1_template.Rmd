@@ -88,18 +88,62 @@ median(steps_per_day)
 First let's create a time series plot. We need to aggregate and calculate the mean of the steps by time interval. Then we can draw the time series plot.
 
 ```{r}
-averages <- aggregate(x = list(steps = activities$steps), by = list(interval = activities$interval), FUN = mean, na.rm = TRUE)
-plot(averages$steps~averages$interval, type="l", xlab="Time interval", ylab="Average number of steps")
+agg <- aggregate(x = list(steps = activities$steps), by = list(interval = activities$interval), FUN = mean, na.rm = TRUE)
+plot(agg$steps~agg$interval, type="l", xlab="Time interval", ylab="Average number of steps")
 ```
 
 The interval with the maximum number of steps can be calculated easily from the aggregated data we used to draw the plot:
 
 ```{r}
-averages[averages$steps == max(averages$steps), 1]
+agg[agg$steps == max(agg$steps), 1]
 ```
 
-## Imputing missing values
+## Task 4: Imputing missing values
+### Requirements
+Note that there are a number of days/intervals where there are missing values (coded as `NA`). The presence of missing days may introduce bias into some calculations or summaries of the data.
 
+1. Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with `NA`s)
+
+2. Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
+
+3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+### Implementation
+First we need to find out the number of rows that contain `NA`s.
+
+```{r}
+missing <- is.na(activities$steps)
+length(missing[missing==TRUE])
+```
+
+We'll use the strategy to fill the mean steps of the particular interval, if we encounter `NA`s in the data set.
+
+This can be achieved with the following code:
+```{r}
+for (i in 1:length(activities$step)) {
+  if (is.na(activities$step[i])) {
+    activities$step[i] <- agg$steps[i]
+  }
+}
+```
+
+First let's calculate the total number of steps per day again.
+```{r}
+steps_per_day <- tapply(activities$steps, activities$date, sum, na.rm = TRUE)
+```
+
+A histogram of the total number of steps per day looks like the following:
+```{r}
+hist(steps_per_day, breaks = length(steps_per_day), main="Histogram: Number of Steps per Day", xlab="Steps per Day", ylab="Frequency", col="red")
+```
+
+The mean and median can be calculated like the following:
+```{r}
+mean(steps_per_day)
+median(steps_per_day)
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
