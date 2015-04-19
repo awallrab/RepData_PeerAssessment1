@@ -118,20 +118,21 @@ missing <- is.na(activities$steps)
 length(missing[missing==TRUE])
 ```
 
-We'll use the strategy to fill the mean steps of the particular interval, if we encounter `NA`s in the data set.
+We'll use the strategy to fill the mean steps of the particular interval, if we encounter `NA`s in the data set. We create a new dataset for this.
 
 This can be achieved with the following code:
 ```{r}
-for (i in 1:length(activities$step)) {
-  if (is.na(activities$step[i])) {
-    activities$step[i] <- agg$steps[i]
+imputed <- activities
+for (i in 1:length(imputed$step)) {
+  if (is.na(imputed$step[i])) {
+    imputed$steps[i] <- agg$steps[i]
   }
 }
 ```
 
 First let's calculate the total number of steps per day again.
 ```{r}
-steps_per_day <- tapply(activities$steps, activities$date, sum, na.rm = TRUE)
+steps_per_day <- tapply(imputed$steps, imputed$date, sum, na.rm = TRUE)
 ```
 
 A histogram of the total number of steps per day looks like the following:
@@ -145,5 +146,29 @@ mean(steps_per_day)
 median(steps_per_day)
 ```
 
+This shows that using mean values for `NA` raises mean and median a little bit, but doesn't change the analysis very much.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+Let's introduce new variables `weekday` and `weekend` to signal "weekend" or "weekday".
+
+```{r}
+imputed$day <- weekdays(imputed$date)
+imputed$weekend <- imputed$day == "Saturday" | imputed$day == "Sunday"
+
+weekend <- subset(imputed, weekend == TRUE)
+weekday <- subset(imputed, weekend == FALSE)
+```
+
+Then plot weekday and weekend charts.
+```{r}
+# weekdays
+averages <- aggregate(x = list(steps = weekday$steps), by = list(interval = weekday$interval), FUN = mean, na.rm = TRUE)
+plot(averages$steps~averages$interval, type="l", xlab="Time interval", ylab="Average number of steps on Weekdays")
+
+# weekends
+averages <- aggregate(x = list(steps = weekend$steps), by = list(interval = weekend$interval), FUN = mean, na.rm = TRUE)
+plot(averages$steps~averages$interval, type="l", xlab="Time interval", ylab="Average number of steps on Weekends")
+```
+
+We can see that there is a peak on weekday around 8:30. Looks like people are on their way to work.
+On weekends the average steps are more distributed over the day.
