@@ -210,20 +210,17 @@ weekday <- subset(imputed, weekend == FALSE)
 Then plot weekday and weekend charts.
 
 ```r
+par(mfrow=c(2,1), mar=c(4,4,1,2))
 # weekdays
 averages <- aggregate(x = list(steps = weekday$steps), by = list(interval = weekday$interval), FUN = mean, na.rm = TRUE)
-plot(averages$steps~averages$interval, type="l", xlab="Time interval", ylab="Average number of steps on Weekdays")
+plot(averages$steps~averages$interval, type="l", xlab="Time interval", ylab="Weekdays")
+
+# weekends
+averages <- aggregate(x = list(steps = weekend$steps), by = list(interval = weekend$interval), FUN = mean, na.rm = TRUE)
+plot(averages$steps~averages$interval, type="l", xlab="Time interval", ylab="Weekends")
 ```
 
 ![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
-
-```r
-# weekends
-averages <- aggregate(x = list(steps = weekend$steps), by = list(interval = weekend$interval), FUN = mean, na.rm = TRUE)
-plot(averages$steps~averages$interval, type="l", xlab="Time interval", ylab="Average number of steps on Weekends")
-```
-
-![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-2.png) 
 
 We can see that there is a peak on weekday around 8:30. Looks like people are on their way to work.
 On weekends the average steps are more distributed over the day.
